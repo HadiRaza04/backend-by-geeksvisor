@@ -3,6 +3,7 @@ const express = require('express');
 const mongoose = require('mongoose')
 const User = require("./model/User");
 const Student = require('./model/Student');
+const Teacher = require('./model/Teacher');
 
 // ------------- Instances ------------- \\
 const app = express();
@@ -20,8 +21,6 @@ mongoose.connect(process.env.MONGODB_URL)
 .catch((Error) => {
     console.log(Error);
 })
-
-
 
 // ------------- Routes ------------- \\
 app.post('/user', async (req, res) => {
@@ -125,6 +124,44 @@ app.put('/student/:id', async (req, res) => {
         return res.status(500).json({ error: "Server error", details: error.massage})
     }
 })
+
+app.post('/teacher', async (req, res) => {
+    try {
+        const { name, email, department } = req.body;
+        if(!name || !email || !department) {
+            return res.status(400).json({ error: "name or email or department not found"})
+        }
+        const teacher = new Teacher({name, email, department});
+        await teacher.save();
+        return res.status(201).json(teacher);
+    } catch (error) {
+        return res.status(500).json({ error: "Server error", details: error.massage});
+    }
+})
+app.get('/teacher', async (req, res) => {
+    try {
+        const teachers = await Teacher.find()
+        if(!teachers) {
+            return res.status(400).json({ error: "Teacher not found"});
+        }
+        return res.status(200).json(teachers);
+    } catch (error) {
+        return res.status(500).json({ error: "Server error", details: error.massage});
+    }
+})
+app.get('/teacher/:id', async (req, res) => {
+    try {
+        const id = req.params.id;
+        const teacher = await Teacher.findById(id);
+        if(!teacher) {
+            return res.status(400).json({ error: "Teacher not found"});
+        }
+        return res.status(200).json(teacher);
+    } catch (error) {
+        return res.status(500).json({ error: "Server error", details: error.massage});
+    }
+})
+
 
 // ------------- Server listen ------------- \\
 app.listen(PORT, () => {
