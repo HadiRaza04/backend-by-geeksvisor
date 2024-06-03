@@ -73,6 +73,18 @@ app.put('/user/:id', async (req, res) => {
         return res.status(500).json({ error: "Server error", details: error.massage})
     }
 })
+app.delete('/user/:id', (req, res) => {
+    try {
+        const id = req.params.id;
+        const user = User.findByIdAndDelete({ _id: id })
+        if(!user) {
+            return res.status(404).json({ error: "User not found "})
+        }
+        return res.status(200).json({ msg: "User deleted." })
+    } catch (error) {
+        return res.status(500).json({ error: "Server error", details: error.massage})
+    }
+})
 
 app.post('/student', async (req, res) => {
     try {
@@ -124,6 +136,18 @@ app.put('/student/:id', async (req, res) => {
         return res.status(500).json({ error: "Server error", details: error.massage})
     }
 })
+app.delete('/student/:id', async (req, res) => {
+    try {
+        const id = req.params.id;
+        const student = await Student.findOneAndDelete( { _id: id } )
+        if(!student) {
+            return res.status(404).json({ error: "Student not found." })
+        }
+        return res.status(200).json({ msg: "Student deleted." })
+    } catch (error) {
+        return res.status(500).json({ error: "Server error", details: error.massage});
+    }
+})
 
 app.post('/teacher', async (req, res) => {
     try {
@@ -157,6 +181,31 @@ app.get('/teacher/:id', async (req, res) => {
             return res.status(400).json({ error: "Teacher not found"});
         }
         return res.status(200).json(teacher);
+    } catch (error) {
+        return res.status(500).json({ error: "Server error", details: error.massage});
+    }
+})
+app.put('/teacher/:id', async (req, res) => {
+    try {
+        const { name, email, department } = req.body;
+        const id = req.params.id;
+        if( !name || !email || !department ){
+            return res.status(400).json({ error: "name or email or department not found" })
+        }
+        const updateTeacher = await Teacher.findOneAndUpdate( { _id: id }, { name, email, department }, { new: true } )
+        return res.status(200).json(updateTeacher)
+    } catch (error) {
+        return res.status(500).json({ error: "Server error", details: error.massage});
+    }
+})
+app.delete('/teacher/:id', async (req, res) => {
+    try {
+        const id = req.params.id;
+        const teacher = await Teacher.findOneAndDelete( { _id: id } );
+        if(!teacher) {
+            return res.status(404).json({error: "Student not found"})
+        }
+        return res.status(200).json( { msg: "Student deleted." } )
     } catch (error) {
         return res.status(500).json({ error: "Server error", details: error.massage});
     }
