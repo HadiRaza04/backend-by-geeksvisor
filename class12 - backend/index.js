@@ -4,6 +4,8 @@ const mongoose = require('mongoose')
 const User = require("./model/User");
 const Student = require('./model/Student');
 const Teacher = require('./model/Teacher');
+const Class = require('./model/Class');
+const Subject = require('./model/Subjects');
 
 // ------------- Instances ------------- \\
 const app = express();
@@ -14,13 +16,10 @@ app.use(express.json())
 
 
 // ------------- Database Connection ------------- \\
+// mongoose.connect("mongodb://localhost:27017/HadiDB")
 mongoose.connect(process.env.MONGODB_URL)
-.then(() => {
-    console.log("Database Connected.")
-})
-.catch((Error) => {
-    console.log(Error);
-})
+.then(() => console.log("Database Connected."))
+.catch(error => console.log(error))
 
 // ------------- Routes ------------- \\
 app.post('/user', async (req, res) => {
@@ -34,7 +33,6 @@ app.post('/user', async (req, res) => {
         return res.status(201).json(newUser);
     } catch (error) {
         return res.status(400).json({ "Error": error.message});
-        
     }
 })
 app.get('/user', async (req, res) => {
@@ -136,16 +134,16 @@ app.put('/student/:id', async (req, res) => {
         return res.status(500).json({ error: "Server error", details: error.massage})
     }
 })
-app.delete('/student/:id', async (req, res) => {
+app.delete('/student/:id', (req, res) => {
     try {
         const id = req.params.id;
-        const student = await Student.findOneAndDelete( { _id: id } )
+        const student = Student.findByIdAndDelete( { _id: id } );
         if(!student) {
             return res.status(404).json({ error: "Student not found." })
         }
         return res.status(200).json({ msg: "Student deleted." })
     } catch (error) {
-        return res.status(500).json({ error: "Server error", details: error.massage});
+        return res.status(500).json({ error: "Server error", details: error.massage})
     }
 })
 
@@ -190,7 +188,7 @@ app.put('/teacher/:id', async (req, res) => {
         const { name, email, department } = req.body;
         const id = req.params.id;
         if( !name || !email || !department ){
-            return res.status(400).json({ error: "name or email or department not found" })
+            return res.status(400).json({ error: "name or email or department are required" })
         }
         const updateTeacher = await Teacher.findOneAndUpdate( { _id: id }, { name, email, department }, { new: true } )
         return res.status(200).json(updateTeacher)
@@ -211,6 +209,153 @@ app.delete('/teacher/:id', async (req, res) => {
     }
 })
 
+app.post('/class', async (req, res) => {
+    try {
+        const { classname, classnumber } = req.body;
+        if(!classname || !classnumber) {
+            return res.status(400).json({ error: "classname or classnumber not found" })
+        }
+        const classes = new Class( { className: classname, roomNumber: classnumber } );
+        await classes.save();
+        return res.status(201).json(classes);
+    } catch (error) {
+        return res.status(500).json({ error: "Server error", details: error.massage});
+    }
+})
+app.get('/class', async (req, res) => {
+    try {
+        const classes = await Class.find()
+        if(!classes){
+            return res.status(404).json({ error: "Classes not found."})
+        }
+        return res.status(200).json(classes);
+    } catch (error) {
+        return res.status(500).json({ error: "Server error", details: error.massage});
+    }
+})
+app.get('/class/:id', async (req, res) => {
+    try {
+        const id = req.params.id;
+        const oneClass = await Class.findById(id)
+        if(!oneClass){
+            return res.status(404).json({ error: "Class not found."})
+        }
+        return res.status(200).json(oneClass);
+    } catch (error) {
+        return res.status(500).json({ error: "Server error", details: error.massage});
+    }
+})
+app.put('/class/:id', async (req, res) => {
+    try {
+        const id = req.params.id;
+        const {classname, classnumber} = req.body;
+        if( !classname || !classnumber ){
+            return res.status(400).json({ error: "classname or classnumber are required" })
+        }
+        const updateClass = await Class.findOneAndUpdate( { _id: id }, { className: classname, roomNumber: classnumber }, { new: true } );
+        return res.status(200).json(updateClass)
+    } catch (error) {
+        return res.status(500).json({ error: "Server error", details: error.massage});
+    }
+})
+app.delete('/class/:id', async (req, res) => {
+    try {
+        const id = req.params.id;
+        const deleteClass = await Class.findOneAndDelete( { _id: id } );
+        if(!deleteClass) {
+            return res.status(404).json({ error: "Class not found"})
+        }
+        return res.status(200).json({ msg: "Student deleted."})
+    } catch (error) {
+        return res.status(500).json({ error: "Server error", details: error.massage});
+    }
+})
+
+app.post('/subject', async (req, res) => {
+    try {
+        const { subjectname } = req.body;
+        if(!subjectname) {
+            return res.status(400).json({ error: "Subjectname is required." })
+        }
+        const subject = new Subject({ subjectName: subjectname });
+        await subject.save();
+        return res.status(201).json(subject);
+    } catch (error) {
+        return res.status(500).json({ error: "Server error", details: error.massage});
+    }
+})
+app.get('/subjects', async(req, res) => {
+    try {
+        const subjects = await Subject.find();
+        if(!subjects){
+            return res.status(404).json({ error: "Subjects not found."})
+        }
+        return res.status(200).json(subjects);
+    } catch (error) {
+        return res.status(500).json({ error: "Server error", details: error.massage});
+    }
+})
+app.get('/subject', async (req, res) => {
+    try {
+        const subjectName = req.query.subjectname;
+        const singleSubject = await Subject.findOne({subjectName});
+        if(!singleSubject) {
+            return res.status(404).json({ msg: "Subject not found."})
+        }
+        return res.status(200).json(singleSubject);
+    } catch (error) {
+        return res.status(500).json({ error: "Server error", details: error.massage});
+    }
+})
+app.get('/subjects/:id', async(req, res) => {
+    try {
+        const id = req.params.id;
+        const subject = await Subject.findById(id);
+        if(!subject){
+            return res.status(404).json({ error: "Subject not found."})
+        }
+        return res.status(200).json(subject);
+    } catch (error) {
+        return res.status(500).json({ error: "Server error", details: error.massage});
+    }
+})
+app.get('/subject/:subjectname', async (req, res) => {
+    try {
+        const subjectName = req.params.subjectname;
+        const singleSubject = await Subject.findOne({subjectName});
+        if(!singleSubject) {
+            return res.status(404).json({ msg: "Subject not found."});
+        }
+        return res.status(200).json(singleSubject);
+    } catch (error) {
+        return res.status(500).json({ error: "Server error", details: error.massage});
+    }
+})
+app.put('/subjects/:id', async (req, res) => {
+    try {
+        const id = req.params.id;
+        const {subjectname} = req.body;
+        if(!subjectname) {
+            return res.status(400).json({ error: "SubjectName is required to update."});
+        }
+        const updateClass = await Subject.findOneAndUpdate({ _id: id }, { subjectName: subjectname }, { new: true });
+        return res.status(200).json(updateClass);
+    } catch (error) {
+        return res.status(500).json({ error: "Server error", details: error.massage});
+    }
+})
+app.delete('/subjects/:id', async (req, res) => {
+    try {
+        const id = req.params.id;
+        const deleteSubject = await Subject.findOneAndDelete({ _id: id });
+        if(!deleteSubject) {
+            return res.status(404).json({ error: "Subject not found"});
+        }
+        return res.status(200).json({ msg: "Student deleted."});
+    } catch (error) {
+        return res.status(500).json({ error: "Server error", details: error.massage});
+    }
+})
 
 // ------------- Server listen ------------- \\
 app.listen(PORT, () => {
