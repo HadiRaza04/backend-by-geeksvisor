@@ -52,10 +52,10 @@ studentRouter.put('/:id', async (req, res) => {
         return res.status(500).json({ error: "Server error", details: error.massage})
     }
 })
-studentRouter.delete('/:id', (req, res) => {
+studentRouter.delete('/:id', async (req, res) => {
     try {
         const id = req.params.id;
-        const student = Student.findByIdAndDelete( { _id: id } );
+        const student = await Student.findByIdAndDelete( { _id: id } );
         if(!student) {
             return res.status(404).json({ error: "Student not found." })
         }

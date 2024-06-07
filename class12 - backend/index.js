@@ -16,7 +16,7 @@ app.use(express.json())
 
 // ------------- Database Connection ------------- \\
 // mongoose.connect("mongodb://localhost:27017/HadiDB")
-mongoose.connect(process.env.MONGODB_URL)
+mongoose.connect(process.env.MONGODB_URI)
 .then(() => console.log("Database Connected."))
 .catch(error => console.log(error))
 

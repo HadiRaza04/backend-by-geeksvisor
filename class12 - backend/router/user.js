@@ -51,10 +51,10 @@ userRouter.put('/:id', async (req, res) => {
         return res.status(500).json({ error: "Server error", details: error.massage})
     }
 })
-userRouter.delete('/:id', (req, res) => {
+userRouter.delete('/:id', async (req, res) => {
     try {
         const id = req.params.id;
-        const user = User.findByIdAndDelete({ _id: id })
+        const user = await User.findByIdAndDelete({ _id: id })
         if(!user) {
             return res.status(404).json({ error: "User not found "})
         }
