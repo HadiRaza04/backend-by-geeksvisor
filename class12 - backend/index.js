@@ -21,11 +21,25 @@ mongoose.connect(process.env.MONGODB_URI)
 .catch(error => console.log(error))
 
 // ------------- Routes ------------- \\
+app.use('/class', classRouter);
+app.use('/student', studentRouter);
+app.use('/subject', subjectRouter);
 app.use('/teacher', teacherRouter);
 app.use('/user', userRouter);
-app.use('/student', studentRouter);
-app.use('/class', classRouter);
-app.use('/subject', subjectRouter);
+
+// ------------- Error Handling ------------- \\
+app.use((req, res, next) => {
+    const error = new Error(`Not found: ${req.originalUrl}`);
+    error.status = 404;
+    next(error);
+})
+app.use((err, req, res, next) => {
+    res.status(err.status || 500).json({
+        error: {
+            message: err.message
+        }
+    });
+});
 
 // ------------- Server listen ------------- \\
 app.listen(PORT, () => {
