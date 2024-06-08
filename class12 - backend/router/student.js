@@ -18,8 +18,8 @@ studentRouter.post('/', async (req, res) => {
 studentRouter.get('/', async (req, res) => {
     try {
         const student = await Student.find()
-        if(!student) {
-            return res.status(400).json({ error: "Student not found."})
+        if(student.length === 0) {
+            return res.json({ msg: "Student not found."})
         }
         return res.json(student);
     } catch (error) {

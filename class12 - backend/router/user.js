@@ -18,8 +18,8 @@ userRouter.post('/', async (req, res) => {
 userRouter.get('/', async (req, res) => {
     try {
         const users = await User.find()
-        if(!users){
-            return res.status(400).json({ msg: "Students not found" })
+        if(users.length === 0){
+            return res.json({ msg: "Students not found" })
         }
         return res.status(200).json(users)
     } catch (error) {

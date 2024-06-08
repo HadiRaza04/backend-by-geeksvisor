@@ -18,8 +18,8 @@ teacherRouter.post('/', async (req, res) => {
 teacherRouter.get('/', async (req, res) => {
     try {
         const teachers = await Teacher.find()
-        if(!teachers) {
-            return res.status(400).json({ error: "Teacher not found"});
+        if(teachers.length === 0) {
+            return res.json({ msg: "Teacher not found"});
         }
         return res.status(200).json(teachers);
     } catch (error) {

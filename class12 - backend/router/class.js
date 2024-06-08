@@ -18,8 +18,8 @@ classRouter.post('/', async (req, res) => {
 classRouter.get('/', async (req, res) => {
     try {
         const classes = await Class.find()
-        if(!classes){
-            return res.status(404).json({ error: "Classes not found."})
+        if(classes.length === 0){
+            return res.json({ msg: "Classes not found."})
         }
         return res.status(200).json(classes);
     } catch (error) {

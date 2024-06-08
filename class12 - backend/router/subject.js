@@ -18,8 +18,8 @@ subjectRouter.post('/', async (req, res) => {
 subjectRouter.get('/', async(req, res) => {
     try {
         const subjects = await Subject.find();
-        if(!subjects){
-            return res.status(404).json({ error: "Subjects not found."})
+        if(subjects.length === 0){
+            return res.json({ msg: "Subjects not found."})
         }
         return res.status(200).json(subjects);
     } catch (error) {
