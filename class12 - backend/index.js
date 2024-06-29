@@ -17,7 +17,7 @@ app.use(express.json())
 // ------------- Database Connection ------------- \\
 // mongoose.connect("mongodb://localhost:27017/HadiDB")
 mongoose.connect(process.env.MONGODB_URI)
-.then(() => console.log("Database Connected."))
+.then(() => console.log("MongoDB Database Connected."))
 .catch(error => console.log(error))
 
 // ------------- Routes ------------- \\
@@ -43,5 +43,5 @@ app.use((err, req, res, next) => {
 
 // ------------- Server listen ------------- \\
 app.listen(PORT, () => {
-    console.log(`Server listen on port: ${PORT}`)
+    console.log(`Server listening on port ${PORT}.`)
 })
