@@ -1,43 +1,14 @@
 const express = require('express');
 const Teacher = require('../model/Teacher');
+const { postTeacher, getTeachers, getByIdTeacher } = require('../controllers/teacherController');
 const teacherRouter = express.Router();
 
-teacherRouter.post('/', async (req, res) => {
-    try {
-        const { name, email, department } = req.body;
-        if(!name || !email || !department) {
-            return res.status(400).json({ error: "name or email or department not found"})
-        }
-        const teacher = new Teacher({name, email, department});
-        await teacher.save();
-        return res.status(201).json(teacher);
-    } catch (error) {
-        return res.status(500).json({ error: "Server error", details: error.massage});
-    }
-})
-teacherRouter.get('/', async (req, res) => {
-    try {
-        const teachers = await Teacher.find()
-        if(teachers.length === 0) {
-            return res.json({ msg: "Teacher not found"});
-        }
-        return res.status(200).json(teachers);
-    } catch (error) {
-        return res.status(500).json({ error: "Server error", details: error.massage});
-    }
-})
-teacherRouter.get('/:id', async (req, res) => {
-    try {
-        const id = req.params.id;
-        const teacher = await Teacher.findById(id);
-        if(!teacher) {
-            return res.status(400).json({ error: "Teacher not found"});
-        }
-        return res.status(200).json(teacher);
-    } catch (error) {
-        return res.status(500).json({ error: "Server error", details: error.massage});
-    }
-})
+teacherRouter.post('/', postTeacher)
+
+teacherRouter.get('/', getTeachers)
+
+teacherRouter.get('/:id', getByIdTeacher)
+
 teacherRouter.put('/:id', async (req, res) => {
     try {
         const { name, email, department } = req.body;
